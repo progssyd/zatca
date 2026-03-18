@@ -47,3 +47,35 @@ Public Function GenerateInvoiceJSON() As String
     json = json & "]}"
     GenerateInvoiceJSON = json
 End Function
+
+Public Sub SendToZatcaBridge(ByVal jsonData As String)
+    On Error GoTo ErrorHandler
+    Dim xmlHttp As Object
+    Set xmlHttp = CreateObject("MSXML2.XMLHTTP")
+    
+    ' تأكد من الرابط الصحيح لسيرفر لارافيل عندك
+    Dim url As String
+    url = "http://127.0.0.1:8000/api/zatca/process" 
+    
+    xmlHttp.Open "POST", url, False
+    xmlHttp.setRequestHeader "Content-Type", "application/json"
+    
+    ' إرسال النص الذي استلمناه من الدالة الأولى
+    xmlHttp.Send jsonData
+    
+    ' استقبال الرد
+    Dim response As String
+    response = xmlHttp.responseText
+    
+    If xmlHttp.Status = 200 Then
+        ' هنا استلمنا الـ QR ونجحت العملية
+        ' يمكنك استخراج الـ QR وحفظه كما فعلنا سابقاً
+        MsgBox "تم قبول الفاتورة في بوابة بجاد بنجاح!", vbInformation
+    Else
+        MsgBox "خطأ من السيرفر: " & response, vbCritical
+    End If
+    
+    Exit Sub
+ErrorHandler:
+    MsgBox "فشل الاتصال بـ Laravel: " & Err.Description, vbCritical
+End Sub
