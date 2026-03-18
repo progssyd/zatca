@@ -122,7 +122,7 @@ ErrorHandler:
     MsgBox "فشل الاتصال: " & Err.Number & " - " & Err.Description, vbCritical
 End Sub
 
-
+http://127.0.0.1:8000/api/zatca/submit-from-vb6
 
 
 
