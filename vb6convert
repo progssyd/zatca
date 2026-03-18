@@ -87,4 +87,47 @@ namespace App\Http\Controllers\Api;
     Call SendToZatcaBridge(myInvoiceData)
 url = "http://127.0.0.1:8000/api/zatca/submit-from-vb6"
 
-namespace App\Http\Controllers\Api; // أضفنا \Api هنا لتطابق المسار الحقيقي
+namespace App\Http\Controllers\Api; // أضفنا \Api 
+
+Public Sub SendToZatcaBridge(ByVal jsonData As String)
+    On Error GoTo ErrorHandler
+    Dim xmlHttp As Object
+    Set xmlHttp = CreateObject("MSXML2.XMLHTTP")
+   
+    Dim url As String
+    url = "http://127.0.0.1:8000/api/zatca/process"
+   
+    xmlHttp.Open "POST", url, False
+    xmlHttp.setRequestHeader "Content-Type", "application/json"
+    xmlHttp.setRequestHeader "Accept", "application/json"   ' هذا السطر المهم جداً
+    
+    ' اختياري لكن مفيد أحياناً في بعض حالات Laravel القديمة
+    ' xmlHttp.setRequestHeader "X-Requested-With", "XMLHttpRequest"
+   
+    xmlHttp.Send jsonData
+   
+    Debug.Print "HTTP Status: " & xmlHttp.Status
+    Debug.Print "Response (first 300 chars): " & Left(xmlHttp.responseText, 300)
+   
+    If xmlHttp.Status = 200 Then
+        MsgBox "تم قبول الفاتورة في بوابة بجاد بنجاح!", vbInformation
+        ' هنا parse الـ JSON إذا أردت
+    Else
+        MsgBox "خطأ من السيرفر - Status: " & xmlHttp.Status & vbCrLf & _
+               "الرد: " & vbCrLf & xmlHttp.responseText, vbCritical
+    End If
+   
+    Exit Sub
+ErrorHandler:
+    MsgBox "فشل الاتصال: " & Err.Number & " - " & Err.Description, vbCritical
+End Sub
+
+
+
+
+
+
+
+
+
+هنا لتطابق المسار الحقيقي
