@@ -128,7 +128,37 @@ https://curl.se/ca/cacert.pem
 https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation/v2/compliance
 https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation/compliance/invoices
 
+private function sendToZatcaManual($xmlInvoice, $hash, $uuid)
+{
+    $url = "https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation/compliance/invoices";
 
+    // جلب البيانات من الملف
+    $authPath = storage_path('app/zatca/auth_data.json');
+    $authData = file_exists($authPath) ? json_decode(file_get_contents($authPath), true) : [];
+    
+    // تأكد أن هذه القيم مطابقة تماماً لما حصلت عليه في الـ Onboarding
+    $username = $authData['binarySecurityToken'] ?? env('ZATCA_TOKEN');
+    $password = $authData['secret'] ?? env('ZATCA_SECRET');
+
+    $payload = [
+        'invoiceHash' => $hash,
+        'uuid'        => $uuid,
+        'invoice'     => base64_encode($xmlInvoice), 
+    ];
+
+    $response = Http::withOptions(['verify' => false])
+        ->withBasicAuth($username, $password) // Laravel سيقوم بتشفيرها Base64 تلقائياً
+        ->withHeaders([
+            'Accept-Language' => 'ar',
+            'Accept-Version'  => 'V2',
+            'Accept'          => 'application/json',
+        ])->post($url, $payload);
+
+    return [
+        'http_status' => $response->status(),
+        'body'        => $response->json()
+    ];
+}
 
 
 هنا لتطابق المسار الحقيقي
