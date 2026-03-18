@@ -123,7 +123,7 @@ ErrorHandler:
 End Sub
 
 http://127.0.0.1:8000/api/zatca/submit-from-vb6
-
+https://curl.se/ca/cacert.pem
 
 
 
