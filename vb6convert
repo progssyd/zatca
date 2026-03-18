@@ -83,3 +83,5 @@ myInvoiceData = GenerateInvoiceJSON()
     
     ' 2. ثانياً: نرسل هذا النص للبوابة
     Call SendToZatcaBridge(myInvoiceData)
+url = "http://127.0.0.1:8000/api/zatca/submit-from-vb6"
+
