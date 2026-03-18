@@ -1,0 +1,26 @@
+Public Function GenerateInvoiceJSON() As String
+    Dim json As String
+    ' تجميع البيانات الأساسية
+    json = "{"
+    json = json & """invoice_no"": """ & Me.Txt_InvNo.Text & ""","
+    json = json & """issue_date"": """ & Me.m_InvDat.Text & ""","
+    json = json & """total_amount"": " & Val(Me.Txt_Total.Text) & ","
+    json = json & """discount"": " & Val(Me.Txt_DisAmt1.Text) & ","
+    json = json & """net_amount"": " & Val(Me.Txt_Net.Text) & ","
+    
+    ' إضافة الأصناف من الجريد afm_detail
+    json = json & """items"": ["
+    Dim i As Integer
+    For i = 1 To afm_detail.Rows - 1 ' نفترض أن الصف الأول هيدر
+        json = json & "{"
+        json = json & """name"": """ & afm_detail.TextMatrix(i, Col_ItemName) & ""","
+        json = json & """quantity"": " & Val(afm_detail.TextMatrix(i, Col_Qty)) & ","
+        json = json & """price"": " & Val(afm_detail.TextMatrix(i, Col_SalPric)) & ","
+        json = json & """vat_percent"": 15"
+        json = json & "}"
+        If i < afm_detail.Rows - 1 Then json = json & ","
+    Next i
+    json = json & "]}"
+    
+    GenerateInvoiceJSON = json
+End Function
