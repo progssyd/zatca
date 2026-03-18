@@ -87,3 +87,4 @@ namespace App\Http\Controllers\Api;
     Call SendToZatcaBridge(myInvoiceData)
 url = "http://127.0.0.1:8000/api/zatca/submit-from-vb6"
 
+namespace App\Http\Controllers\Api; // أضفنا \Api هنا لتطابق المسار الحقيقي
