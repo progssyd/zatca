@@ -126,6 +126,7 @@ http://127.0.0.1:8000/api/zatca/submit-from-vb6
 https://curl.se/ca/cacert.pem
 
 https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation/v2/compliance
+https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation/compliance/invoices
 
 
 
