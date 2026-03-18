@@ -1,26 +1,49 @@
+
 Public Function GenerateInvoiceJSON() As String
     Dim json As String
-    ' تجميع البيانات الأساسية
+    Dim i As Integer
+    Dim Qty As Double, Price As Double, Discount As Double
+    Dim net As Double, VAT As Double, total As Double
+
+    ' بداية الـ JSON والبيانات الأساسية
     json = "{"
     json = json & """invoice_no"": """ & Me.Txt_InvNo.Text & ""","
-    json = json & """issue_date"": """ & Me.m_InvDat.Text & ""","
-    json = json & """total_amount"": " & Val(Me.Txt_Total.Text) & ","
-    json = json & """discount"": " & Val(Me.Txt_DisAmt1.Text) & ","
-    json = json & """net_amount"": " & Val(Me.Txt_Net.Text) & ","
+    json = json & """issue_date"": """ & Format(Me.m_InvDat.Text, "yyyy-mm-dd") & ""","
+    json = json & """total_amount"": " & Replace(Format(Val(Me.Txt_Total.Text), "0.00"), ",", ".") & ","
+    json = json & """discount"": " & Replace(Format(Val(Me.Txt_DisAmt1.Text), "0.00"), ",", ".") & ","
+    json = json & """net_amount"": " & Replace(Format(Val(Me.Txt_Net.Text), "0.00"), ",", ".") & ","
     
-    ' إضافة الأصناف من الجريد afm_detail
+    ' إضافة الأصناف بناءً على الأعمدة في الصورة
     json = json & """items"": ["
-    Dim i As Integer
-    For i = 1 To afm_detail.Rows - 1 ' نفترض أن الصف الأول هيدر
-        json = json & "{"
-        json = json & """name"": """ & afm_detail.TextMatrix(i, Col_ItemName) & ""","
-        json = json & """quantity"": " & Val(afm_detail.TextMatrix(i, Col_Qty)) & ","
-        json = json & """price"": " & Val(afm_detail.TextMatrix(i, Col_SalPric)) & ","
-        json = json & """vat_percent"": 15"
-        json = json & "}"
-        If i < afm_detail.Rows - 1 Then json = json & ","
-    Next i
-    json = json & "]}"
     
+    For i = 1 To afm_detail.Rows
+        ' التحقق من وجود صنف (مثل شرطك في الصورة)
+        If Len(Trim(afm_detail.Text(i, Itemid))) > 0 Then
+            
+            ' حساب القيم كما تفعل في برنامجك
+            Qty = Val(afm_detail.Text(i, ItmQtyOLD))
+            Price = Val(afm_detail.Text(i, Pric))
+            Discount = Val(afm_detail.Text(i, Discnt))
+            net = (Qty * Price) - Discount
+            VAT = net * 0.15
+            total = net + VAT
+
+            json = json & "{"
+            json = json & """name"": """ & afm_detail.Text(i, ItmName) & ""","
+            json = json & """quantity"": " & Replace(Format(Qty, "0.00"), ",", ".") & ","
+            json = json & """price"": " & Replace(Format(Price, "0.00"), ",", ".") & ","
+            json = json & """discount"": " & Replace(Format(Discount, "0.00"), ",", ".") & ","
+            json = json & """vat_amount"": " & Replace(Format(VAT, "0.00"), ",", ".") & ","
+            json = json & """total"": " & Replace(Format(total, "0.00"), ",", ".")
+            json = json & "}"
+            
+            ' إضافة فاصلة إذا لم يكن هذا آخر صنف
+            If i < afm_detail.Rows Then 
+                If Len(Trim(afm_detail.Text(i + 1, Itemid))) > 0 Then json = json & ","
+            End If
+        End If
+    Next i
+    
+    json = json & "]}"
     GenerateInvoiceJSON = json
 End Function
