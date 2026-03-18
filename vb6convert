@@ -80,6 +80,8 @@ ErrorHandler:
     MsgBox "فشل الاتصال بـ Laravel: " & Err.Description, vbCritical
 End Sub
 myInvoiceData = GenerateInvoiceJSON()
+
+namespace App\Http\Controllers\Api;
     
     ' 2. ثانياً: نرسل هذا النص للبوابة
     Call SendToZatcaBridge(myInvoiceData)
