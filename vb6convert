@@ -160,5 +160,34 @@ private function sendToZatcaManual($xmlInvoice, $hash, $uuid)
     ];
 }
 
+// داخل ملف ZatcaBridgeController.php
 
+public function submitFromVb6(Request $request) {
+    // ... جلب البيانات من VB6 ...
+
+    // 1. توليد الـ XML الخام
+    $xmlInvoice = $this->generateBaseXML($uuid, $nextVbId, $nextIcv, $pih, $vbData);
+
+    // 2. تطبيق السحر الخاص بك (Canonicalization)
+    $dom = new \DOMDocument();
+    $dom->preserveWhiteSpace = false;
+    $dom->formatOutput = false;
+    $dom->loadXML($xmlInvoice);
+    
+    // تحويله للصيغة القياسية لضمان مطابقة الهاش 100%
+    $canonicalXml = $dom->C14N(false, false); 
+    
+    // 3. حساب الهاش من النسخة المطهرة
+    $invoiceHash = base64_encode(hash('sha256', $canonicalXml, true));
+
+    // 4. إعداد الـ Payload باستخدام النسخة المطهرة حصراً
+    $payload = [
+        'invoiceHash' => $invoiceHash,
+        'uuid'        => $uuid,
+        'invoice'     => base64_encode($canonicalXml), // نرسل الـ Canonical وليس الـ XML العادي
+    ];
+
+    // 5. الإرسال باستخدام دالتك الناجحة
+    $response = $this->sendToZatcaManual($payload, $authData);
+}
 هنا لتطابق المسار الحقيقي
